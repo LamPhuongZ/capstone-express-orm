@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { HttpException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { AuthDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(
+    private jwtService: JwtService,
+    private configService: ConfigService
+  ) { }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  prisma = new PrismaClient();
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  // login
+  async login(userLogin: AuthDto) {
+    try {
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+      let checkUser = await this.prisma.tblUser.findFirst({
+        where: {
+          email: userLogin.email
+        }
+      });
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+      if (checkUser) {
+        if (bcrypt.compareSync(userLogin.pass_word, checkUser.pass_word) ||   userLogin.pass_word == checkUser.pass_word) {
+          checkUser = { ...checkUser, pass_word: '' };
+
+          let token = this.jwtService.signAsync(
+            { user_id: checkUser.user_id },
+            { secret: this.configService.get("KEY"), expiresIn: "1d" }
+          );
+          // return token;
+          throw new HttpException("Đăng nhập thành công", 200);
+        } else {
+          throw new HttpException("Mật khẩu không hợp lệ !!!", 400);
+        }
+      } else {
+        throw new HttpException("Email không hợp lệ !!!", 400);
+      }
+    } catch (error) {
+      throw new HttpException(error.response, error.status);
+    }
+
   }
 }
