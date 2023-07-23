@@ -1,26 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { HttpException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaClient, tblUser } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  constructor(private jwtService: JwtService) { }
 
-  findAll() {
-    return `This action returns all user`;
-  }
+  prisma = new PrismaClient();
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+  async getUserByToken(token: string) {
+    try {
+      let data = this.prisma.tblUser.findMany()
+      return data;
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    } catch (error) {
+      throw new HttpException(error.response, error.status);
+    }
   }
 }

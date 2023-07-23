@@ -25,15 +25,15 @@ export class AuthService {
       });
 
       if (checkUser) {
-        if (bcrypt.compareSync(userLogin.pass_word, checkUser.pass_word) ||   userLogin.pass_word == checkUser.pass_word) {
+        if (bcrypt.compareSync(userLogin.pass_word, checkUser.pass_word) || userLogin.pass_word == checkUser.pass_word) {
           checkUser = { ...checkUser, pass_word: '' };
 
           let token = this.jwtService.signAsync(
             { user_id: checkUser.user_id },
             { secret: this.configService.get("KEY"), expiresIn: "1d" }
           );
-          // return token;
-          throw new HttpException("Đăng nhập thành công", 200);
+          return token;
+          // throw new HttpException("Đăng nhập thành công", 200);
         } else {
           throw new HttpException("Mật khẩu không hợp lệ !!!", 400);
         }
