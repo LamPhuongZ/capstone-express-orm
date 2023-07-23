@@ -8,9 +8,19 @@ export class UserService {
 
   prisma = new PrismaClient();
 
+  // Lấy thông tin user theo token
   async getUserByToken(token: string) {
     try {
-      let data = this.prisma.tblUser.findMany()
+      // lấy phần chuỗi sau Bearer trừ luôn khoảng cách (SOF)
+      const payload: tblUser | any = this.jwtService.decode(
+        token.split(" ")[1]
+      );
+
+      const data = await this.prisma.tblUser.findFirst({
+        where: {
+          user_id: payload.user_id
+        },
+      });
       return data;
 
     } catch (error) {
