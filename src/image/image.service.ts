@@ -1,26 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { HttpException, Injectable } from '@nestjs/common';
+import { ImageDto } from './dto/image.dto';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ImageService {
-  create(createImageDto: CreateImageDto) {
-    return 'This action adds a new image';
-  }
 
-  findAll() {
-    return `This action returns all image`;
-  }
+  prisma = new PrismaClient();
 
-  findOne(id: number) {
-    return `This action returns a #${id} image`;
-  }
-
-  update(id: number, updateImageDto: UpdateImageDto) {
-    return `This action updates a #${id} image`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} image`;
+  // Lấy danh sách hình ảnh
+  async getImage(): Promise<ImageDto[]> {
+    try {
+      let data = this.prisma.tblImage.findMany();
+      return data;
+    } catch (error) {
+      throw new HttpException(error.response, error.status);
+    }
   }
 }
