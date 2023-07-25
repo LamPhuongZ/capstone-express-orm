@@ -18,9 +18,19 @@ export class ImageService {
   }
 
   // Lấy danh sách ảnh đã tạo theo userId
-  async getImageByUserId(): Promise<any> {
+  async getCreatedImageByUserId(userId: string): Promise<ImageDto[]> {
     try {
-      
+      let data = await this.prisma.tblImage.findMany({
+        where: {
+          user_id: Number(userId)
+        }
+      })
+
+      if (data.length > 0) {
+        return data;
+      } else {
+        throw new HttpException("Dữ liệu không tồn tại", 404);
+      }
     } catch (error) {
       throw new HttpException(error.response, error.status);
     }
