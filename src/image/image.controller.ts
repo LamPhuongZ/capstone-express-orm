@@ -15,4 +15,9 @@ export class ImageController {
   getImage(): Promise<ImageDto[]> {
     return this.imageService.getImage();
   }
+
+  @Get("/get-image-by-userId/:userId")
+  getCreatedImageByUserId(@Param("userId") userId: string): Promise<ImageDto[]> {
+    return this.imageService.getCreatedImageByUserId(userId);
+  }
 }
