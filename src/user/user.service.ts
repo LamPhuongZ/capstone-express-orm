@@ -12,7 +12,7 @@ export class UserService {
   async getUserByToken(token: string) {
     try {
       // lấy phần chuỗi sau Bearer trừ luôn khoảng cách (SOF)
-      const payload: tblUser | any = this.jwtService.decode(
+      let payload: tblUser | any = this.jwtService.decode(
         token.split(" ")[1]
       );
 
