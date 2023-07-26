@@ -1,26 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSaveImageDto } from './dto/create-save_image.dto';
-import { UpdateSaveImageDto } from './dto/update-save_image.dto';
+import { Injectable, HttpException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
 
 @Injectable()
 export class SaveImageService {
-  create(createSaveImageDto: CreateSaveImageDto) {
-    return 'This action adds a new saveImage';
-  }
+  prisma = new PrismaClient();
 
-  findAll() {
-    return `This action returns all saveImage`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} saveImage`;
-  }
-
-  update(id: number, updateSaveImageDto: UpdateSaveImageDto) {
-    return `This action updates a #${id} saveImage`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} saveImage`;
-  }
+  // Lấy thông tin đã lưu hình này theo imageId ( dùng để kiểm tra ảnh đã lưu hay chưa ở nút save)
+ 
 }
