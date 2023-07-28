@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ImageDto } from './dto/image.dto';
 import { PrismaClient } from '@prisma/client';
+import { Response } from 'express';
 
 @Injectable()
 export class ImageService {
@@ -18,7 +19,7 @@ export class ImageService {
   }
 
   // Lấy danh sách ảnh đã tạo theo userId
-  async getCreatedImageByUserId(userId: number): Promise<ImageDto[]> {
+  async getCreatedImageByUserId(userId: number, res: Response) {
     try {
       let data = await this.prisma.tblImage.findMany({
         where: {
@@ -27,17 +28,25 @@ export class ImageService {
       })
 
       if (data.length > 0) {
-        return data;
+        return res.status(200).json({
+          status: "200",
+          message: "Lấy dữ liệu thành công",
+          data
+        });
+
       } else {
-        throw new HttpException("Dữ liệu không tồn tại", 404);
+        return res.status(404).json({
+          status: "404",
+          message: "Dữ liệu không tồn tại !!!"
+        });
       }
     } catch (error) {
-      throw new HttpException(error.response, error.status);
+      throw new HttpException(error.response.message, error.status);
     }
   }
 
   // Lấy thông tin ảnh và người tạo ảnh bằng imageId
-  async getInfoImageByImageId(imageId: number) {
+  async getInfoImageByImageId(imageId: number, res: Response) {
     try {
       let data = await this.prisma.tblImage.findFirst({
         include: {
@@ -48,16 +57,25 @@ export class ImageService {
         }
       });
 
-      if(data) {
-        const {tblUser, ...mData} = data;
-        return data;
+      if (data) {
+        const { tblUser, ...mData } = data;
+
+        return res.status(200).json({
+          status: "200",
+          message: "Lấy dữ liệu thành công",
+          data
+        });
+
       } else {
-        throw new HttpException("Dữ liệu không tồn tại", 404);
+        return res.status(404).json({
+          status: "404",
+          message: "Dữ liệu không tồn tại !!!"
+        });
       }
 
     } catch (error) {
-      throw new HttpException(error.response, error.status);
+      throw new HttpException(error.response.message, error.status);
     }
   }
-  
+
 }

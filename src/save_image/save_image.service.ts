@@ -1,16 +1,14 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClient, tblUser } from '@prisma/client';
-
+import { PrismaClient } from '@prisma/client';
+import { Response } from 'express';
 
 @Injectable()
 export class SaveImageService {
-  constructor(private jwtService: JwtService) { }
-
   prisma = new PrismaClient();
 
   // Lấy thông tin đã lưu hình này theo imageId ( dùng để kiểm tra ảnh đã lưu hay chưa ở nút save)
-  async getCheckSavedImage(imageId: number, userId: number) {
+  async getCheckSavedImage(imageId: number, userId: number, res: Response) {
     try {
       // Kiểm tra imageId có tồn tại hay chưa
       let checkImageId = await this.prisma.tblImage.findFirst({
@@ -26,14 +24,23 @@ export class SaveImageService {
             image_id: Number(imageId),
             user_id: Number(userId)
           }
-        })
-        return saveImage;
+        });
+
+        return res.status(200).json({
+          status: "200",
+          message: "Lấy dữ liệu thành công",
+          saveImage
+        });
+
       } else {
-        throw new HttpException("Dữ liệu không tồn tại", 404);
+        return res.status(404).json({
+          status: "404",
+          message: "Dữ liệu không tồn tại !!!"
+        });
       }
 
     } catch (error) {
-      throw new HttpException(error.response, error.status);
+      throw new HttpException(error.response.message, error.status);
     }
   }
 }

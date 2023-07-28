@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { AuthDto } from './dto/auth.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
   prisma = new PrismaClient();
 
   // login
-  async login(userLogin: AuthDto) {
+  async login(userLogin: AuthDto, res: Response) {
     try {
 
       let checkUser = await this.prisma.tblUser.findFirst({
@@ -34,16 +35,25 @@ export class AuthService {
           );
 
           const data = { user: checkUser, token: token }
-          return data;
-          // throw new HttpException("Đăng nhập thành công", 200);
+          return res.status(200).json({
+            status: "200",
+            message: "Đăng nhập thành công.",
+            data
+          });
         } else {
-          throw new HttpException("Mật khẩu không hợp lệ !!!", 400);
+          return res.status(400).json({
+            status: "400",
+            message: "Mật khẩu không hợp lệ !!!"
+          });
         }
       } else {
-        throw new HttpException("Email không hợp lệ !!!", 400);
+        return res.status(400).json({
+          status: "400",
+          message: "Email không hợp lệ !!!"
+        });
       }
     } catch (error) {
-      throw new HttpException(error.response, error.status);
+      throw new HttpException(error.response.message, error.status);
     }
 
   }

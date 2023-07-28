@@ -1,6 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient, tblUser } from '@prisma/client';
+import { Response } from 'express';
 
 @Injectable()
 export class UserService {
@@ -9,7 +10,7 @@ export class UserService {
   prisma = new PrismaClient();
 
   // Lấy thông tin user theo token
-  async getUserByToken(token: string) {
+  async getUserByToken(token: string, res: Response) {
     try {
       // lấy phần chuỗi sau Bearer trừ luôn khoảng cách (SOF)
       let payload: tblUser | any = this.jwtService.decode(
@@ -21,10 +22,15 @@ export class UserService {
           user_id: payload.user_id
         },
       });
-      return data;
+
+      return res.status(200).json({
+        status: "200",
+        message: "Lấy dữ liệu thành công",
+        data
+      });
 
     } catch (error) {
-      throw new HttpException(error.response, error.status);
+      throw new HttpException(error.response.message, error.status);
     }
   }
 }
